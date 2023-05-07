@@ -7,7 +7,7 @@ from discord.ext import commands
 load_dotenv()
 
 TOKEN = os.getenv('HIDDEN')
-GUILD = os.getenv('1103535909552529508')
+GUILD = os.getenv('TESTE')
 
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.default())
 
