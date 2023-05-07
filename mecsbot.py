@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands
+from discord import Button
 client = discord.Client(intents=discord.Intents.all())
 intents = discord.Intents.default()
 intents.members = True
@@ -7,7 +8,7 @@ status_message_id = None
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 def create_button(label, style, custom_id):
-    return Button(style=style, label=label, custom_id=custom_id)
+     return Button(style=style, label=label, custom_id=custom_id)
 
 
 async def update_status_message(channel, logged_in_users):
@@ -57,5 +58,6 @@ async def on_button_click(interaction):
         await interaction.message.clear_reactions()
         await interaction.message.add_reaction("❌")
         await update_status_message(interaction.message.channel, logged_in_users)
+
 
 client.run("Hidden")
