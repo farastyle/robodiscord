@@ -1,64 +1,53 @@
+import os
+from datetime import datetime
 import discord
-from discord.ext import commands
+from discord_slash import SlashCommand
 from discord_components import DiscordComponents, Button, ButtonStyle
 
-def create_button(label, style, custom_id, type):
-    return Button(style=style, label=label, custom_id=custom_id, type=type)
+TOKEN = os.getenv("DISCORD_TOKEN")
+GUILD = os.getenv("DISCORD_GUILD")
 
-client = commands.Bot(command_prefix='!')
-logged_in_users = set()
+client = discord.Client(intents=discord.Intents.all())
+slash = SlashCommand(client, sync_commands=True)
+DiscordComponents(client)
+
+
+def create_button(label, style, custom_id):
+    return Button(style=style, label=label, custom_id=custom_id)
+
+
+async def update_status_message(channel, checked_in_users):
+    count = len(checked_in_users)
+    status_message = f"Checked-in Users: {count}\n\n"
+    for user in checked_in_users:
+        status_message += f"{user['name']} checked-in at {user['time']}\n"
+    checkin_button = create_button(label="Check-in", style=ButtonStyle.green, custom_id="checkin")
+    checkout_button = create_button(label="Check-out", style=ButtonStyle.red, custom_id="checkout")
+    await channel.send(
+        embed=discord.Embed(description=status_message, color=0x00FF00),
+        components=[[checkin_button, checkout_button]]
+    )
+
 
 @client.event
 async def on_ready():
-    DiscordComponents(client)
-    channel = client.get_channel(1103535910072635414)  # Substitua pelo ID do canal que você deseja enviar a mensagem
-
-    checkin_button = Button(style=ButtonStyle.green, label="Check-in", id="checkin")
-    checkout_button = Button(style=ButtonStyle.red, label="Check-out", id="checkout")
-    await channel.send(content="Controle de atividades da Mecanica:", components=[checkin_button, checkout_button])
-
-
-    global status_message
-    status_message = "Ninguém logado"
-
+    print(f"{client.user} has connected to Discord!")
+    guild = discord.utils.get(client.guilds, name=GUILD)
+    channel = discord.utils.get(guild.channels, name="general")
     await update_status_message(channel, set())
 
-async def update_status_message(channel, logged_in_users):
-    global status_message
-
-    if not logged_in_users:
-        status_message = "Ninguém logado"
-    else:
-        user_list = "\n".join([f"{user['name']} ({user['time']})" for user in logged_in_users])
-        status_message = f"Usuários logados:\n{user_list}"
-
-    message = await channel.fetch_message(channel.last_message_id)
-
-    # Cria os botões de Check-in e Check-out novamente para atualizar a mensagem
-    checkin_button = create_button(label="Check-in", style=1, custom_id="checkin", type=2)
-    checkout_button = create_button(label="Check-out", style=4, custom_id="checkout", type=2)
-
-    
-
-
-
-    await message.edit(components=[checkin_button, checkout_button, discord.Embed(description=status_message, color=0x00FF00)])
 
 @client.event
 async def on_button_click(interaction):
-    global logged_in_users
-
-    if interaction.component.id == "checkin":
-        user = {"name": interaction.author.display_name, "time": str(interaction.created_at.time())[:-7]}
-        logged_in_users.add(user)
-        await interaction.respond(content=f"Check-in realizado por {interaction.author.display_name}!")
-    elif interaction.component.id == "checkout":
-        for user in logged_in_users:
-            if user["name"] == interaction.author.display_name:
-                logged_in_users.remove(user)
-                await interaction.respond(content=f"Check-out realizado por {interaction.author.display_name}!")
-                break
-
-    await update_status_message(interaction.channel, logged_in_users)
+    channel = client.get_channel(interaction.channel_id)
+    message = await channel.fetch_message(interaction.message.id)
+    checked_in_users = set()
+    for component in message.components:
+        for button in component.components:
+            if button.style == ButtonStyle.green and interaction.custom_id == "checkin":
+                checked_in_users.add({"name": interaction.author.display_name, "time": datetime.now().strftime("%H:%M:%S")})
+            elif button.style == ButtonStyle.red and interaction.custom_id == "checkout":
+                checked_in_users.discard({"name": interaction.author.display_name, "time": datetime.now().strftime("%H:%M:%S")})
+    await update_status_message(channel, checked_in_users)
 
 client.run("HIDDEN")
