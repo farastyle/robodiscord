@@ -3,16 +3,18 @@ from dotenv import load_dotenv
 import discord
 from discord import Button, ButtonStyle
 from discord.ext import commands
+from discord import ButtonStyle
 
 load_dotenv()
 
-TOKEN = os.getenv('HIDDEN')
-GUILD = os.getenv('TESTE')
+TOKEN = 'HIDDEN'
+GUILD = 'TESTE'
 
 bot = commands.Bot(command_prefix='!', intents=discord.Intents.default())
 
+
 async def create_button_row(activities):
-    buttons_row1 = [Button(style=ButtonStyle.green, label="Logar", custom_id="logar_button")]
+    buttons_row1 = [Button(button_style=ButtonStyle.green, custom_id="logar_button")]
     row1 = activities[0:5]
     row2 = activities[5:10]
 
@@ -35,7 +37,7 @@ async def on_ready():
         if guild.name == GUILD:
             break
 
-    channel = discord.utils.get(guild.channels, name='controle-mecanica')
+    channel = discord.utils.get(guild.channels, name='mecs')
     if channel is None:
         print("Channel not found")
         return
