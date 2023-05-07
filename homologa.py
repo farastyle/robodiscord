@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix='!', intents=discord.Intents.default())
 
 
 async def create_button_row(activities):
-    buttons_row1 = [Button(button_style=ButtonStyle.green, custom_id="logar_button")]
+    buttons_row1 = [Button(style=ButtonStyle.green, custom_id="logar_button")]
     row1 = activities[0:5]
     row2 = activities[5:10]
 
@@ -33,20 +33,24 @@ async def create_button_row(activities):
 @bot.event
 async def on_ready():
     print(f'{bot.user.name} has connected to Discord!')
-    for guild in bot.guilds:
-        if guild.name == GUILD:
-            break
 
+    guild = bot.guilds[0]
     channel = discord.utils.get(guild.channels, name='mecs')
+
     if channel is None:
         print("Channel not found")
         return
 
     message = await channel.send("Controle de atividades da Mecanica:", components=await create_button_row(set()))
-    print(f'Message sent: {message.content}')
+    messages[message.id] = set()
+
+    print(f"Message created: {message.id}")
+
 
 @bot.event
 async def on_button_click(interaction):
     await interaction.respond(type=6)
 
 bot.run(TOKEN)
+
+
