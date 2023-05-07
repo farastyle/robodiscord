@@ -1,53 +1,46 @@
 import os
-from datetime import datetime
 import discord
-from discord_slash import SlashCommand
-from discord_components import DiscordComponents, Button, ButtonStyle
+from discord.ext import commands
+# from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
 
-TOKEN = os.getenv("DISCORD_TOKEN")
-GUILD = os.getenv("DISCORD_GUILD")
-
-client = discord.Client(intents=discord.Intents.all())
-slash = SlashCommand(client, sync_commands=True)
-DiscordComponents(client)
+intents = discord.Intents.default()
+client = discord.Client(intents=intents)
+bot = commands.Bot(command_prefix='!')
+status_message_id = None
 
 
 def create_button(label, style, custom_id):
     return Button(style=style, label=label, custom_id=custom_id)
 
 
-async def update_status_message(channel, checked_in_users):
-    count = len(checked_in_users)
-    status_message = f"Checked-in Users: {count}\n\n"
-    for user in checked_in_users:
-        status_message += f"{user['name']} checked-in at {user['time']}\n"
-    checkin_button = create_button(label="Check-in", style=ButtonStyle.green, custom_id="checkin")
-    checkout_button = create_button(label="Check-out", style=ButtonStyle.red, custom_id="checkout")
-    await channel.send(
-        embed=discord.Embed(description=status_message, color=0x00FF00),
-        components=[[checkin_button, checkout_button]]
-    )
+async def update_status_message():
+    global status_message_id
+    channel = bot.get_channel(1103535910072635414)
+    if status_message_id is None:
+        message = await channel.send("React to check-in!", components=[create_button("Check-in", ButtonStyle.green, "checkin")])
+        status_message_id = message.id
+    else:
+        message = await bot.get_channel(1103535910072635414).fetch_message(status_message_id)
+        count = len([r for r in message.reactions if str(r.emoji) == "✅"])
+        message_embed = message.embeds[0]
+        message_embed.set_field_at(0, name="Attendance", value=f"{count}/100")
+        await message.edit(embed=message_embed)
 
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f"{client.user} has connected to Discord!")
-    guild = discord.utils.get(client.guilds, name=GUILD)
-    channel = discord.utils.get(guild.channels, name="mecs")
-    await update_status_message(channel, set())
+    print(f'{bot.user} has connected to Discord!')
+    await update_status_message()
 
 
-@client.event
+@bot.event
 async def on_button_click(interaction):
-    channel = client.get_channel(interaction.channel_id)
-    message = await channel.fetch_message(interaction.message.id)
-    checked_in_users = set()
-    for component in message.components:
-        for button in component.components:
-            if button.style == ButtonStyle.green and interaction.custom_id == "checkin":
-                checked_in_users.add({"name": interaction.author.display_name, "time": datetime.now().strftime("%H:%M:%S")})
-            elif button.style == ButtonStyle.red and interaction.custom_id == "checkout":
-                checked_in_users.discard({"name": interaction.author.display_name, "time": datetime.now().strftime("%H:%M:%S")})
-    await update_status_message(channel, checked_in_users)
+    channel = bot.get_channel(1103535910072635414)
+    if interaction.component.id == "checkin":
+        user = {"name": interaction.author.display_name, "time": str(interaction.created_at.time())[:-7]}
+        await interaction.respond(type=InteractionType.UpdateMessage, embed=discord.Embed(title=f"{user['name']} has checked-in!", description=f"Time: {user['time']}"), components=[])
+        await update_status_message()
+    else:
+        await interaction.respond(type=InteractionType.UpdateMessage, embed=discord.Embed(title="Unknown Button Clicked"), components=[])
 
 client.run("HIDDEN")
