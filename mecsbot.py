@@ -33,7 +33,7 @@ async def update_status_message(channel, checked_in_users):
 async def on_ready():
     print(f"{client.user} has connected to Discord!")
     guild = discord.utils.get(client.guilds, name=GUILD)
-    channel = discord.utils.get(guild.channels, name="general")
+    channel = discord.utils.get(guild.channels, name="mecs")
     await update_status_message(channel, set())
 
 
