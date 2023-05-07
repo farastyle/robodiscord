@@ -1,7 +1,7 @@
 import os
 import discord
 from discord.ext import commands
-# from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
+from discord_components import DiscordComponents, Button, ButtonStyle, InteractionType
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
@@ -43,4 +43,4 @@ async def on_button_click(interaction):
     else:
         await interaction.respond(type=InteractionType.UpdateMessage, embed=discord.Embed(title="Unknown Button Clicked"), components=[])
 
-client.run("HIDDEN")
+client.run("Hidden")
