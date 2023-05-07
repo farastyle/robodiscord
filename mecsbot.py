@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 from discord_components import DiscordComponents, Button, ButtonStyle
 
+def create_button(label, style, custom_id, type):
+    return Button(style=style, label=label, custom_id=custom_id, type=type)
+
 client = commands.Bot(command_prefix='!')
 logged_in_users = set()
 
@@ -13,6 +16,7 @@ async def on_ready():
     checkin_button = Button(style=ButtonStyle.green, label="Check-in", id="checkin")
     checkout_button = Button(style=ButtonStyle.red, label="Check-out", id="checkout")
     await channel.send(content="Controle de atividades da Mecanica:", components=[checkin_button, checkout_button])
+
 
     global status_message
     status_message = "Ninguém logado"
@@ -31,8 +35,12 @@ async def update_status_message(channel, logged_in_users):
     message = await channel.fetch_message(channel.last_message_id)
 
     # Cria os botões de Check-in e Check-out novamente para atualizar a mensagem
-    checkin_button = Button(style=ButtonStyle.blue, label="Check-in", id="checkin")
-    checkout_button = Button(style=ButtonStyle.red, label="Check-out", id="checkout")
+    checkin_button = create_button(label="Check-in", style=1, custom_id="checkin", type=2)
+    checkout_button = create_button(label="Check-out", style=4, custom_id="checkout", type=2)
+
+    
+
+
 
     await message.edit(components=[checkin_button, checkout_button, discord.Embed(description=status_message, color=0x00FF00)])
 
@@ -53,4 +61,4 @@ async def on_button_click(interaction):
 
     await update_status_message(interaction.channel, logged_in_users)
 
-client.run("MTEwNDUzNTQwNTU3NzEwOTU0NA.G3WnyQ.v3boFAdHR6DvPZ6MsgOy2MLvTSep-wqCxF33T8")
+client.run("HIDDEN")
