@@ -1,20 +1,2 @@
-INFO       - 2023-05-07 11:57:36,954 - client          : logging in using static token
-INFO       - 2023-05-07 11:57:38,147 - gateway         : Shard ID None has connected to Gateway (Session ID: d66bbdf8cae096ce3bec720628daa1cf).
-ERROR      - 2023-05-07 11:57:49,499 - bot             : Ignoring exception in command button
-Traceback (most recent call last):
-  File "C:\Users\FarasJess\AppData\Local\Programs\Python\Python39\lib\site-packages\discord\ext\commands\core.py", line 229, in wrapped
-    ret = await coro(*args, **kwargs)
-  File "D:\botdiscord\teste.py", line 55, in button
-    await view.disable_all_items()
-AttributeError: 'SimpleView' object has no attribute 'disable_all_items'
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "C:\Users\FarasJess\AppData\Local\Programs\Python\Python39\lib\site-packages\discord\ext\commands\bot.py", line 1350, in invoke
-    await ctx.command.invoke(ctx)
-  File "C:\Users\FarasJess\AppData\Local\Programs\Python\Python39\lib\site-packages\discord\ext\commands\core.py", line 1023, in invoke
-    await injected(*ctx.args, **ctx.kwargs)  # type: ignore
-  File "C:\Users\FarasJess\AppData\Local\Programs\Python\Python39\lib\site-packages\discord\ext\commands\core.py", line 238, in wrapped
-    raise CommandInvokeError(exc) from exc
-discord.ext.commands.errors.CommandInvokeError: Command raised an exception: AttributeError: 'SimpleView' object has no attribute 'disable_all_items'
+INFO       - 2023-05-17 19:44:12,609 - client          : logging in using static token
+INFO       - 2023-05-17 19:44:13,626 - gateway         : Shard ID None has connected to Gateway (Session ID: 446f8255d378cfc62bb3970ad46fc170).

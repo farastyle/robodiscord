@@ -1,71 +1,34 @@
-import settings
-import discord 
+# This example requires the 'message_content' privileged intent to function.
+import discord
+import asyncio
+import os
 from discord.ext import commands
-import utils
-    
-logger = settings.logging.getLogger("bot")
+import settings
+from datetime import datetime
+os.environ["X"] = "0"
 
-class SimpleView(discord.ui.View):
-    
-    foo : bool = None
-    
-    async def disable_all_items(self):
-        for item in self.children:
-            item.disabled = True
-        await self.message.edit(view=self)
-    
-    async def on_timeout(self) -> None:
-        await self.message.channel.send("Timedout")
-        await self.disable_all_items()
-    
-    @discord.ui.button(label="Entrar", 
-                       style=discord.ButtonStyle.success)
-    async def hello(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message("Entrando")
-        self.foo = True
-        self.stop()
-        
-    @discord.ui.button(label="Sair", 
-                       style=discord.ButtonStyle.red)
-    async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message("Saindo")
-        self.foo = False
-        self.stop()
-        
-def run():
-    intents = discord.Intents.default()
-    intents.message_content = True
-    
-    bot = commands.Bot(command_prefix="!", intents=intents)
-    
-    @bot.event 
-    async def on_ready():
-        await utils.load_videocmds(bot)
-    
-    @bot.command()
-    async def button(ctx):
-        view = SimpleView(timeout=50)
-        # button = discord.ui.Button(label="Click me")
-        # view.add_item(button)
-        
-        message = await ctx.send(view=view)
-        view.message = message
-        
-        await view.wait()
-        await view.disable_all_items()
-        
-        if view.foo is None:
-            logger.error("Timeout")
-            
-        elif view.foo is True:
-            logger.error("Ok")
-            
-        else:
-            logger.error("cancel")
-        
-        
-        
-    bot.run(settings.DISCORD_API_SECRET, root_logger=True)
+class MyClient(discord.Client):
+    async def on_ready(self):
+        print(f'Logged in as {self.user} (ID: {self.user.id})')
+        print('------')
 
-if __name__ == "__main__":
-    run()
+    async def on_message(self, message):
+        x = int(os.environ["X"])  # Retrieve value of environment variable 'X'
+        if message.content.startswith('!editme'):
+            await asyncio.sleep(3.0)
+            x = x + 1
+            await msg.edit(content=x)
+            os.environ["X"] = str(x)  # Update value of environment variable 'X'
+
+    # async def on_message_edit(self, before, after):
+    #     msg = f'**{before.author}** edited their message:\n{before.content} -> {after.content}'
+    #     await before.channel.send(msg)
+    async def on_ready(self):
+        x = int(os.environ.get("X", 0))  # Retrieve value of environment variable 'X' or set to 0 if it doesn't exist
+        msg = await channel.send(f"{x}")
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = MyClient(intents=intents)
+client.run(settings.DISCORD_API_SECRET, root_logger=True)
