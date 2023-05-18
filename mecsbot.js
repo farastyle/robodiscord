@@ -1,8 +1,8 @@
 require('dotenv').config();
-const { recordUser, removeUser } = require('./jsoncontrol');
+const { recordUser, removeUser } = require('./src/jsoncontrol');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { Client, GatewayIntentBits, Partials, ButtonBuilder, ActionRowBuilder } = require('discord.js');
-const { updateMessage } = require('./getLastMessage'); // Import the updateMessage function
+const { updateMessage } = require('./src/getLastMessage'); // Updated import path
 
 const token = process.env.DISCORD_API_TOKEN;
 
@@ -23,7 +23,7 @@ const leaveButton = new ButtonBuilder()
 const butoes = new ActionRowBuilder()
   .addComponents(enterButton, leaveButton);
 
-let jsonData = require('./data.json');
+let jsonData = require('./src/data.json'); // Updated import path
 let users = Object.keys(jsonData);
 let text1 = texto1.length > 0 ? texto1.join('\n') : 'Ninguém';
 let text2 = texto2.length > 0 ? texto2.join('\n') : 'Nenhum registro ainda';
@@ -54,7 +54,7 @@ client.on('ready', async () => {
 client.on('interactionCreate', async (interaction) => {
   let channelId = interaction.channelId;
   let channel = client.channels.fetch(channelId);
-  jsonData = require('./data.json');
+  jsonData = require('./src/data.json'); // Updated import path
   users = Object.keys(jsonData);
   // Update the texto1 array with user information from the JSON file
   const user = interaction.user.username;
@@ -77,7 +77,6 @@ client.on('interactionCreate', async (interaction) => {
   text2 = texto2.length > 0 ? texto2.join('\n') : 'Nenhum registro ainda';
   text = "``` Quem está trabalhando  : **\n" + text1 + "\n\n\n\n\n**Log de chegada e saída:**\n" +  text2 + "```";
 
-  // Access the updateMessage function from getLastMessage module and pass the channel and text
   updateMessage(channel, text);
 });
 
