@@ -53,7 +53,8 @@ client.on('ready', async () => {
 
 client.on('interactionCreate', async (interaction) => {
   let channelId = interaction.channelId;
-  let channel = client.channels.fetch(channelId);
+  let channel = await client.channels.fetch(channelId);
+  channel = channel.isText() ? channel : await channel.fetch();
   jsonData = require('./src/data.json'); // Updated import path
   users = Object.keys(jsonData);
   // Update the texto1 array with user information from the JSON file
